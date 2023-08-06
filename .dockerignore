@@ -1,0 +1,11 @@
+dockerfile
+.git
+.idea
+.gitignore
+.gitattributes
+docker-compose*
+/venv/
+/img/
+ReadMe.md
+/.idea/
+/tests/
