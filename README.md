@@ -1,6 +1,6 @@
 # Risk Aware Navigation
 
-Risk-aware navigation system tailored for industries with a focus on accident prevention and insurance coverage
+Demo of Risk-aware navigation system tailored for industries with a focus on accident prevention and insurance coverage
 
 **Risk-aware-navigation app consist of:**
 1. [Component inventory database in NoSQL](#db)
