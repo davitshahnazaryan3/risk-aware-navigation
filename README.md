@@ -3,10 +3,11 @@
 Demo of Risk-aware navigation system tailored for industries with a focus on accident prevention and insurance coverage
 
 **Risk-aware-navigation app consist of:**
-1. [Component inventory database in NoSQL](#db)
-2. [Structural risk calculation module](#str)
-3. [Structural and environmental risk integration module](#combo)
-4. [Patch request to risk mapping API for risks](#request)
+1. [Map creator](#map)
+2. [Component inventory database in NoSQL](#db)
+3. [Structural risk calculation module](#str)
+4. [Structural and environmental risk integration module](#combo)
+5. [Patch request to risk mapping API for risks](#request)
 
 **Required libraries**: 
 
@@ -17,7 +18,20 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 
         pytest --disable-warnings -v -s -x
 
-### 1. Component inventory database in NoSQL
+### 1. Map creator
+<details>
+<a name="map"></a>
+<summary>Show/Hide</summary>
+<br>
+
+Component inventory creation app. Uses Express.js API and MongoDb to generate component inventory and place them on the selected map. 
+
+
+
+
+</details>
+
+### 2. Component inventory database in NoSQL
 <details>
 <a name="db"></a>
 <summary>Show/Hide</summary>
@@ -69,7 +83,7 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 
 </details>
 
-### 2. Structural risk calculation module
+### 3. Structural risk calculation module
 <details>
 <a name="str"></a>
 <summary>Show/Hide</summary>
@@ -99,7 +113,7 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 </details>
 
 
-### 3. Structural and environmental risk integration module
+### 4. Structural and environmental risk integration module
 <details>
 <a name="combo"></a>
 <summary>Show/Hide</summary>
@@ -113,7 +127,7 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 </details>
 
 
-### 4. Patch request to risk mapping API
+### 5. Patch request to risk mapping API
 <details>
 <a name="request"></a>
 <summary>Show/Hide</summary>

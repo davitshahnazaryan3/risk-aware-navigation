@@ -2,9 +2,12 @@
 __pycache__/
 
 # Distribution / packaging
-/venv/
+venv/
 /dist
 /rossini/
+.idea/
+node_modules/
+temp/
 
 # local env files
 .env.local

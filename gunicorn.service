@@ -1,0 +1,14 @@
+[Unit]
+Description=rossini structural rie
+After=network.target
+
+[Service]
+User=davit
+Group=davit
+WorkingDirectory=/home/davit/app/src/
+Environment="PATH=/home/davit/app/venv/bin"
+EnviornmentFile=/home/davit/.env
+ExecStart=/home/davit/app/venv/bin/gunicorn -w 4 -k unicorn.workers.UvicornWorker src.app:app --bind 0.0.0.0:8000
+
+[Install]
+WantedBy=multi-user.target

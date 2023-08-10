@@ -1,0 +1,427 @@
+swagger: "2.0"
+info:
+  title: Database API
+  description: Documentation of calls for component inventory in ROSSINI
+  version: 1.0
+  contact:
+    email: davit.shahnazaryan@iusspavia.it
+  servers:
+    -url: "http://localhost:3000/"
+
+schemes: [http,https]
+
+tags:
+  - name: main
+    description: Main
+  - name: component
+    description: Component inventory
+  - name: fragility
+    description: Fragility functions
+  - name: damage
+    description: Damage states
+  - name: coordinates
+    description: All locations of the component within a map
+
+paths:
+  # Main path
+  /api/v1:
+    get:
+      summary: index
+      tags:
+        - main
+      description: Database API
+      responses:
+        200:
+          description: success
+          schema:
+            type: string
+
+  # Components
+  /api/v1/component:
+    get:
+      summary: Get all components
+      description: Returns all components
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: "#/components/schemas/Component"
+
+        400:
+          description: failed to fetch components
+
+      tags:
+        - component
+
+    post:
+      summary: Create a component
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: "#/components/schemas/Component"
+
+      responses:
+        201:
+          description: component successfully created
+          schema:
+            $ref: "#/components/schemas/Component"
+
+        400:
+          description: failed to create component. Component with name already exists
+
+      tags:
+        - component
+
+  /api/v1/component/{componentName}:
+    get:
+      summary: Get component by name
+      description: Returns a specific component
+      parameters:
+        - name: componentName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/Component"
+      responses:
+        404:
+          description: Failed to fetch component
+        200:
+          description: success
+          schema:
+            $ref: "#/components/schemas/Component"
+      tags:
+        - component
+
+    patch:
+      summary: Edit component by name
+      description: Returns an updated component
+      produces:
+        - application/json
+      parameters:
+        - name: componentName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/Component"
+      responses:
+        201:
+          description: component successfully updated
+          schema:
+            $ref: "#/components/schemas/Component"
+        404:
+          description: failed to update component
+
+      tags:
+        - component
+
+    delete:
+      summary: Delete component by name
+      parameters:
+        - name: componentName
+          in: path
+          required: true
+      responses:
+        204:
+          description: success
+        404:
+          description: failed to delete component
+
+      tags:
+        - component
+
+  # Fragility functions
+  /api/v1/fragility:
+    get:
+      summary: get all fragility functions
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: "#/components/schemas/Fragility"
+        400:
+          description: failed to fetch fragility functions
+
+      tags:
+        - fragility
+
+    post:
+      summary: Assign a fragility function
+      description: assigns a fragility function to a component by component's ID
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: "#/components/schemas/Fragility"
+
+      responses:
+        201:
+          description: success
+          schema:
+            $ref: "#/components/schemas/Fragility"
+
+        400:
+          description: failed to add fragility function
+
+      tags:
+        - fragility
+
+    patch:
+      summary: update fragility function
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          required: true
+          schema:
+            $ref: "#/components/schemas/Fragility"
+
+      responses:
+        404:
+          description: component not found
+        201:
+          description: fragility successfully updated
+          schema:
+            $ref: "#/components/schemas/Fragility"
+
+      tags:
+        - fragility
+
+  # Damage states
+  /api/v1/damage:
+    post:
+      summary: assign damage state to component
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: "#/components/schemas/Damage"
+      responses:
+        201:
+          description: successfully added damage state
+          schema:
+            $ref: "#/components/schemas/Damage"
+        404:
+          description: Component not found
+        400:
+          description: failed to add damage state
+
+      tags:
+        - damage
+
+    patch:
+      summary: update damage state
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/components/schemas/Damage"
+
+      responses:
+        201:
+          description: successfully updated damage state
+          schema:
+            $ref: "#/components/schemas/Damage"
+        404:
+          description: failed to update damage state
+
+      tags:
+        - damage
+
+    delete:
+      summary: delete damage state
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            example: {name: DS2, component: componentID}
+
+      responses:
+        204:
+          description: Successfully deleted damage state
+        404:
+          description: Damage state or component not found
+        400:
+          description: Failed to delete damage state
+
+      tags:
+        - damage
+
+  # Coordinates
+  /api/v1/coord:
+    post:
+      summary: assign coordinate to component
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: "#/components/schemas/Coordinates"
+      responses:
+        201:
+          description: coordinates successfully added to component
+          schema:
+            $ref: "#/components/schemas/Coordinates"
+        404:
+          description: Component not found
+        400:
+          description: failed to add coordinates
+
+      tags:
+        - coordinates
+
+    patch:
+      summary: update coordinates by coordinate ID
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/components/schemas/Coordinates"
+
+      responses:
+        201:
+          description: successfully updated coordinates
+          schema:
+            $ref: "#/components/schemas/Coordinates"
+        404:
+          description: failed to update coordinates
+
+      tags:
+        - coordinates
+
+    delete:
+      summary: delete coordinates by coordinate ID
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            example: {_id: ""}
+
+      responses:
+        204:
+          description: successfully deleted coordinates
+        404:
+          description: Coordinate ID not found
+        400:
+          description: Failed to delete coordinates
+
+      tags:
+        - coordinates
+
+
+components:
+  schemas:
+    Component:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        reference:
+          type: string
+        cells:
+          type: array
+          items:
+            type: integer
+        influence_cells:
+          type: array
+          items:
+            type: integer
+
+    Fragility:
+      type: object
+      required:
+        - imName
+        - unitOfMeasure
+        - component
+      properties:
+        imName:
+          type: string
+        unitOfMeasure:
+          type: string
+        component:
+          type: string
+
+    Damage:
+      type: object
+      required:
+        - name
+        - mean
+        - dispersion
+        - component
+      properties:
+        name:
+          type: string
+        alternative_name:
+          type: string
+        mean:
+          type: number
+        dispersion:
+          type: number
+        description:
+          type: string
+        consequence:
+          type: string
+        component:
+          type: string
+
+    Coordinates:
+      type: object
+      required:
+        - topLeft
+        - topRight
+        - bottomLeft
+        - bottomRight
+        - component
+      properties:
+        topLeft:
+          example: [0, 0]
+        topRight:
+          example: [0, 0]
+        bottomLeft:
+          example: [0, 0]
+        bottomRight:
+          example: [0, 0]
+        influenceRadius:
+          type: number
+        component:
+          type: string
+

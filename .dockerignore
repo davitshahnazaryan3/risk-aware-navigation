@@ -10,3 +10,9 @@ ReadMe.md
 /.idea/
 /tests/
 secret.txt
+/mapcreator/node_modules/
+/mapcreator/package-lock.json/
+/rossini/
+/.github/
+/reference/
+/temp/
