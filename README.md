@@ -27,12 +27,19 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 <summary>Show/Hide</summary>
 <br>
 
-Component inventory creation app. Uses Express.js API and MongoDb to generate component inventory and place them on the selected map. 
+Component inventory creation app. Uses **Express.js** and **MongoDb** to generate component inventory and place them on the selected map. 
 
-- Run App
-      - node mapcreator/index.js
-- View API documentation at
+**To start the application, run the following command in your terminal:**
+
+      - cd mapcreator
+      - npm install
+      - node index.js
+
+**Viewing API Documentation**
+
       - localhost:{{PORT}}/api-docs
+
+Replace {{PORT}} with the port number your application is running on.
 
 </details>
 
