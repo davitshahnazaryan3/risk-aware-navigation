@@ -4,9 +4,19 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 
 ### TODOs
 - [ ] dockerfiles and docker-compose files to be updated
+- [ ] In progress: navigation App
+- [ ] In progress: map creator
 
-**Risk-aware-navigation app consist of:**
-1. [Map creator](#map)
+### Apps
+- Component inventory
+    - /inventory
+- Risk calculation module
+    - /src
+- Risk-based navigation module, modified A*
+    - /navigation
+
+**Risk-aware-navigation:**
+1. [Component inventory app](#inv)
 2. [Component inventory database in NoSQL](#db)
 3. [Structural risk calculation module](#str)
 4. [Structural and environmental risk integration module](#combo)
@@ -21,9 +31,9 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 
         pytest --disable-warnings -v -s -x
 
-### 1. Map creator
+### 1. Map creator API
 <details>
-<a name="map"></a>
+<a name="inv"></a>
 <summary>Show/Hide</summary>
 <br>
 
@@ -31,7 +41,7 @@ Component inventory creation app. Uses **Express.js** and **MongoDb** to generat
 
 **To start the application, run the following command in your terminal:**
 
-      - cd mapcreator
+      - cd inventory
       - npm install
       - node index.js
 
