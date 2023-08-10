@@ -2,6 +2,9 @@
 
 Demo of Risk-aware navigation system tailored for industries with a focus on accident prevention and insurance coverage
 
+### TODOs
+- [ ] dockerfiles and docker-compose files to be updated
+
 **Risk-aware-navigation app consist of:**
 1. [Map creator](#map)
 2. [Component inventory database in NoSQL](#db)
@@ -26,8 +29,10 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 
 Component inventory creation app. Uses Express.js API and MongoDb to generate component inventory and place them on the selected map. 
 
-
-
+- Run App
+      - node mapcreator/index.js
+- View API documentation at
+      - localhost:{{PORT}}/api-docs
 
 </details>
 
