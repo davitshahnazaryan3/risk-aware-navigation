@@ -9,14 +9,6 @@ services:
     ports:
       - 8001:8000
 
-#    environment:
-#      - MONGO_USER=${MONGO_USER}
-#      - MONGO_PASSWORD=${MONGO_PASSWORD}
-#      - DATABASE_NAME=${DATABASE_NAME}
-#      - IP_ADDRESS=${IP_ADDRESS}
-#      - PORT=${PORT}
-#      - MAP_NAME=${MAP_NAME}
-
     env_file:
       - .env
 

@@ -9,27 +9,29 @@ import redis
 from src.config import settings
 
 
-CONNECTION_STRING = f"mongodb+srv://{settings.mongo_user}:{settings.mongo_password}" \
-                    f"@cluster0.fnot2.mongodb.net/{settings.database_name}?retryWrites=true"
-# CONNECTION_STRING = "mongodb://localhost"
+if settings.db_type == "local":
+    CONNECTION_STRING = "mongodb://localhost"
+else:
+    CONNECTION_STRING = f"mongodb+srv://{settings.mongo_initdb_root_username}:{settings.mongo_initdb_root_password}" \
+                        f"@cluster0.fnot2.mongodb.net/{settings.database_name}?retryWrites=true"
 
 
 def get_database(database_name: str, redis_key: str, client: redis.Redis = None):
-	try:
-		if client is not None:
-			cache = client.get("inventory_" + redis_key)
-			if cache is not None:
-				db = json.loads(cache)
-				logging.info("Connected to cached inventory database")
-				return db, True
+    try:
+        if client is not None:
+            cache = client.get("inventory_" + redis_key)
+            if cache is not None:
+                db = json.loads(cache)
+                logging.info("Connected to cached inventory database")
+                return db, True
 
-		cluster = MongoClient(CONNECTION_STRING)
-		db = cluster[database_name]
+        cluster = MongoClient(CONNECTION_STRING)
+        db = cluster[database_name]
 
-	except Exception as e:
-		logging.error(e.__class__.__name__, exc_info=True)
-		return {"message": e.__class__.__name__}, False
+    except Exception as e:
+        logging.error(e.__class__.__name__, exc_info=True)
+        return {"message": e.__class__.__name__}, False
 
-	else:
-		logging.info("Connected to inventory database")
-		return db, False
+    else:
+        logging.info("Connected to inventory database")
+        return db, False

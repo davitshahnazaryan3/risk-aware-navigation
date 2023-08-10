@@ -9,3 +9,4 @@ docker-compose*
 ReadMe.md
 /.idea/
 /tests/
+secret.txt

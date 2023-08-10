@@ -1,1 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Distribution / packaging
 /venv/
+/dist
+/rossini/
+
+# local env files
+.env.local
+.env.*.local
+.env
+.vscode
+.DS_Store
+secret.txt

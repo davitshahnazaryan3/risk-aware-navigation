@@ -18,7 +18,7 @@ from scipy import stats
 from scipy.interpolate import interp1d
 import redis
 
-from get_sat import get_sat
+from .get_sat import get_sat
 from src.utils import read_map, requests_retry_session
 from src.get_db import get_database
 from src.config import settings
