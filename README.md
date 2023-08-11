@@ -15,6 +15,26 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 - Risk-based navigation module, modified A*
     - /navigation
 
+### Environmental variables
+- MONGO_INITDB_ROOT_USERNAME
+    - MongoDB username
+- MONGO_INITDB_ROOT_PASSWORD
+    - MongoDB password
+- DATABASE_NAME
+    - MongoDB database name
+- NAVIGATION_IP_ADDRESS
+    - IP address or container name of navigation app
+- NAVIGATION_PORT
+    - navigation app's port
+- MAP_NAME
+    - map name, currently "map_a", "map_b" to distinguish for a generated fictitious map, and a real map, respectively
+- REDIS_HOST
+    - redis server hostname
+- REDIS_PORT
+    - redis server port
+- DB_TYPE
+    - Database type, "remote" (cloud) or "local"
+
 **Risk-aware-navigation:**
 1. [Component inventory app](#inv)
 2. [Component inventory database in NoSQL](#db)

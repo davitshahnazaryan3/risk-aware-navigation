@@ -75,7 +75,7 @@ def index():
 def index_rossini_api():
     try:
         response = requests_retry_session().get(
-            f'http://{settings.ip_address}:{settings.port}',
+            f'http://{settings.navigation_ip_address}:{settings.navigation_port}',
             timeout=5
         )
 

@@ -45,7 +45,7 @@ def update_risks(structural: List[int], ambiental: List[int]):
 
     try:
         response = requests_retry_session().put(
-            f'http://{settings.ip_address}:{settings.port}/map',
+            f'http://{settings.navigation_ip_address}:{settings.navigation_port}/map',
             timeout=5,
             headers=headers,
             data=json.dumps(out),
@@ -53,7 +53,7 @@ def update_risks(structural: List[int], ambiental: List[int]):
 
     except Exception as e:
         logging.error(e.__class__.__name__, exc_info=True)
-        return {"message": e.__class__.__name__}
+        return {"message": e.__class__.__name__}, None
 
     else:
         logging.info(response.status_code, exc_info=True)
