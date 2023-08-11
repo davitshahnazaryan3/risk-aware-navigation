@@ -22,8 +22,12 @@ MAP_B = "2-NavigationFile"
 
 
 def cache_data(key, data, seconds=60):
-    redis_client.set(key, json.dumps({key: data}))
-    redis_client.expire(key, timedelta(seconds=seconds))
+    try:
+        serialized_data = json.dumps({key: data})
+        redis_client.setex(key, timedelta(seconds=seconds), serialized_data)
+
+    except Exception as e:
+        logging.error("Error caching data: %s", str(e))
 
 
 def _get_map_name(map_name):
@@ -48,9 +52,16 @@ def _get_map_name(map_name):
     return map_name, redis_inventory_key
 
 
+@app.get("/clear-cache")
+def clear_cache():
+    redis_client.flushdb()
+    logging.info("Redis cache cleared!")
+
+
 @app.get("/db")
 def index():
     get_database("rossini", redis_client)
+    logging.error("asdsad", "asdasd")
     return {"message": "connected"}
 
 
