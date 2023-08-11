@@ -1,13 +1,13 @@
 import json
 from datetime import timedelta
 from bson import json_util
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import redis
 import logging
 from src.config import settings
 
-from .schemas import SensorInput, SensorInput1
-from .get_db import get_database
+from .schemas import SensorInput1
+from .get_db import connect_to_dabase, clear_redis_cache
 from .risks import Risk, update_risks
 from .utils import requests_retry_session
 
@@ -47,7 +47,7 @@ def _get_map_name(map_name):
 
     else:
         map_name = MAP_A
-        logging.info(
+        logging.warning(
             f"Map name provided incorrectly, default to Map A with name {map_name}")
 
     return map_name, redis_inventory_key
@@ -55,14 +55,20 @@ def _get_map_name(map_name):
 
 @app.get("/clear-cache")
 def clear_cache():
-    redis_client.flushdb()
-    logging.info("Redis cache cleared!")
+    try:
+        return clear_redis_cache(redis_client)
+    except HTTPException as e:
+        return e
 
 
 @app.get("/db")
 def index():
-    get_database("rossini", redis_client)
-    return {"message": "connected"}
+    # to test db connection
+    try:
+        connect_to_dabase("rossini", redis_client)
+        return {"message": "connected"}
+    except HTTPException as e:
+        return e
 
 
 @app.get("/rossini_api")

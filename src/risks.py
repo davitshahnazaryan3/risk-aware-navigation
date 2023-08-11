@@ -20,7 +20,7 @@ import redis
 
 from .get_sat import get_sat
 from src.utils import read_map, requests_retry_session
-from src.get_db import get_database
+from src.get_db import connect_to_dabase
 from src.config import settings
 
 # todo, update to connect to Maps on a server
@@ -120,7 +120,7 @@ class Risk:
         self._get_constants()
         
         self.client = client
-        self.db, self.inventory_cache_exists = get_database(
+        self.db, self.inventory_cache_exists = connect_to_dabase(
             settings.database_name, redis_inventory_key, client=client)
         self.redis_inventory_key = "inventory_" + redis_inventory_key
         self.map_name = sensor_input["map_name"]

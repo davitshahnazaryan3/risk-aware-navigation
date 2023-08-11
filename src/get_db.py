@@ -5,6 +5,7 @@ from pymongo import MongoClient
 import logging
 import json
 import redis
+from fastapi import HTTPException
 
 from src.config import settings
 
@@ -16,7 +17,7 @@ else:
                         f"@cluster0.fnot2.mongodb.net/{settings.database_name}?retryWrites=true"
 
 
-def get_database(database_name: str, redis_key: str, client: redis.Redis = None):
+def connect_to_dabase(database_name: str, redis_key: str, client: redis.Redis = None):
     try:
         if client is not None:
             cache = client.get("inventory_" + redis_key)
@@ -35,3 +36,13 @@ def get_database(database_name: str, redis_key: str, client: redis.Redis = None)
     else:
         logging.info("Connected to inventory database")
         return db, False
+
+
+def clear_redis_cache(redis_client):
+    try:
+        redis_client.flushdb()
+        logging.info("Redis cache cleared!")
+        return {"message": "Redis cache cleared successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to clear Redis cache")
+    
