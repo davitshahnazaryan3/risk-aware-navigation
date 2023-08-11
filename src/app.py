@@ -54,19 +54,6 @@ def index():
     return {"message": "connected"}
 
 
-@app.get("/db1")
-def index_db1():
-    db, _ = get_database("rossini", redis_client)
-    collection = db["components"]
-
-    data = {}
-    items = collection.find()
-    for item in items:
-        data[item["name"]] = {"1"}
-
-    return data
-
-
 @app.get("/rossini_api")
 def index_rossini_api():
     try:
@@ -108,7 +95,7 @@ async def _calculate_risks(sensor_input: dict):
 @app.put("/risks")
 async def put_risks(sensor_input: SensorInput1):
 
-    sensor_input = sensor_input.dict()
+    sensor_input = sensor_input.model_dump()
 
     # Structural risk
     structural_risk, indices_structure = await _calculate_risks(sensor_input)

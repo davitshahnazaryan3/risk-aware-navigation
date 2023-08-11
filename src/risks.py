@@ -13,7 +13,7 @@ import logging
 import json
 import numpy as np
 import re
-import timeit
+import yaml
 from scipy import stats
 from scipy.interpolate import interp1d
 import redis
@@ -24,8 +24,8 @@ from src.get_db import get_database
 from src.config import settings
 
 # todo, update to connect to Maps on a server
-PATH = Path.cwd() / "maps"
-DB_NAME = "rossini"
+PATH = Path(__file__).resolve().parent
+PATH_MAPS = PATH.parents[0] / "maps"
 
 
 def update_risks(structural: List[int], ambiental: List[int]):
@@ -72,11 +72,15 @@ class Risk:
         6: 3,
         7: 4,
         8: 5,
-        9: 6
+        9: 6,
     }
 
-    STRUCTURE_IDS = {"622204f35ed4ed1b0bb72c18", "622204ff5ed4ed1b0bb72c1a", "6222051d5ed4ed1b0bb72c1c",
-                     "622205335ed4ed1b0bb72c1e"}
+    STRUCTURE_IDS = {
+        "622204f35ed4ed1b0bb72c18", 
+        "622204ff5ed4ed1b0bb72c1a", 
+        "6222051d5ed4ed1b0bb72c1c",
+        "622205335ed4ed1b0bb72c1e",
+    }
 
     # Map name: cell_Id, x in px, y in px
     REFERENCE = {
@@ -112,12 +116,15 @@ class Risk:
         client : redis.Redis, optional
                 Redis Client, by default None
         """
+        
+        self._get_constants()
+        
         self.client = client
         self.db, self.inventory_cache_exists = get_database(
-            DB_NAME, redis_inventory_key, client=client)
+            settings.database_name, redis_inventory_key, client=client)
         self.redis_inventory_key = "inventory_" + redis_inventory_key
         self.map_name = sensor_input["map_name"]
-        self.grid = read_map(PATH, self.map_name)
+        self.grid = read_map(PATH_MAPS, self.map_name)
         self.scene_name = self.grid["scene_name"]
 
         # Coordinates of center of cell 0 with respect to (0, 0) = first white pixel
@@ -136,6 +143,18 @@ class Risk:
             self.sensors = self.sensor_input["sensors"]
         except KeyError:
             self.sensors = None
+
+    def _get_constants(self):
+        
+        with open(PATH / "constants.yaml", "r") as f:
+            constants = yaml.safe_load(f)
+        
+        self.STRUCTURE_IDS = constants.get('STRUCTURE_IDS', self.STRUCTURE_IDS)
+        if self.STRUCTURE_IDS is not None:
+            self.STRUCTURE_IDS = set(self.STRUCTURE_IDS)
+
+        self.REFERENCE = constants.get('REFERENCE', self.REFERENCE)
+        self.RISK_MAP = constants.get('RISK_MAP', self.RISK_MAP)
 
     def _init_risk_arrays(self):
         rows = self.grid["rows"]

@@ -27,10 +27,6 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
         python -m pip install -r requirements.txt
         pip install "pymongo[srv]"
 
-**Testing**
-
-        pytest --disable-warnings -v -s -x
-
 ### 1. Map creator API
 <details>
 <a name="inv"></a>
@@ -41,13 +37,13 @@ Component inventory creation app. Uses **Express.js** and **MongoDb** to generat
 
 **To start the application, run the following command in your terminal:**
 
-      - cd inventory
-      - npm install
-      - node index.js
+      cd inventory
+      npm install
+      node index.js
 
 **Viewing API Documentation**
 
-      - localhost:{{PORT}}/api-docs
+      localhost:{{PORT}}/api-docs
 
 Replace {{PORT}} with the port number your application is running on.
 
@@ -105,11 +101,16 @@ Replace {{PORT}} with the port number your application is running on.
 
 </details>
 
-### 3. Structural risk calculation module
+### 3. Risk calculation module
 <details>
 <a name="str"></a>
 <summary>Show/Hide</summary>
 <br>
+
+**To start the application, run the following command in your terminal:**
+
+      uvicorn src.app:app --port {{PORT}} --reload
+
 
 **Takes as input:**
 1. IM value - intensity measure value as float

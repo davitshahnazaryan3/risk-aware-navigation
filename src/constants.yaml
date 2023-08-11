@@ -1,0 +1,27 @@
+STRUCTURE_IDS:
+  - "622204f35ed4ed1b0bb72c18"
+  - "622204ff5ed4ed1b0bb72c1a"
+  - "6222051d5ed4ed1b0bb72c1c"
+  - "622205335ed4ed1b0bb72c1e"
+
+REFERENCE:
+  "2-Navigation_map_v1.0":
+    cell_id: 3227
+    h: 26.0
+    v: 24.0
+  "2-NavigationFile":
+    cell_id: 5895
+    h: 8.5
+    v: 8.5
+
+RISK_MAP:
+  0: 0
+  1: 0
+  2: 0
+  3: 0
+  4: 1
+  5: 2
+  6: 3
+  7: 4
+  8: 5
+  9: 6

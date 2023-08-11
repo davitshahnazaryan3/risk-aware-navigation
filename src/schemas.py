@@ -45,6 +45,7 @@ class SensorInput(BaseModel):
 class SensorData1(BaseModel):
     name: str = None
     type: str = None
+    # [acceleration series, time series]
     data: List[List[float]]
     location: tuple = None
 
