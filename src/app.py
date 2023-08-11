@@ -47,7 +47,8 @@ def _get_map_name(map_name):
 
     else:
         map_name = MAP_A
-        logging.info(f"Map name provided incorrectly, default to Map A with name {map_name}")
+        logging.info(
+            f"Map name provided incorrectly, default to Map A with name {map_name}")
 
     return map_name, redis_inventory_key
 
@@ -61,7 +62,6 @@ def clear_cache():
 @app.get("/db")
 def index():
     get_database("rossini", redis_client)
-    logging.error("asdsad", "asdasd")
     return {"message": "connected"}
 
 
@@ -84,7 +84,8 @@ def index_rossini_api():
 
 async def _calculate_risks(sensor_input: dict):
     # get map name
-    sensor_input["map_name"], redis_inventory_key = _get_map_name(sensor_input["map_name"])
+    sensor_input["map_name"], redis_inventory_key = _get_map_name(
+        sensor_input["map_name"])
 
     # Run risk calculations
     risk = Risk(sensor_input, redis_inventory_key, redis_client)
@@ -98,7 +99,8 @@ async def _calculate_risks(sensor_input: dict):
         risk.combine_structural_risks_with_cached()
 
         # Cache
-        cache_data("inventory_" + redis_inventory_key, json_util.dumps(risk.inventory_cache), seconds=86400)
+        cache_data("inventory_" + redis_inventory_key,
+                   json_util.dumps(risk.inventory_cache), seconds=86400)
 
     return risk.risks, risk.indices_structure
 
@@ -130,7 +132,8 @@ async def put_risks(sensor_input: SensorInput1):
         for idx in indices_structure:
             ambiental_risk[idx] = 0
 
-        logging.info("Length of environmental risk values %s", len(ambiental_risk))
+        logging.info("Length of environmental risk values %s",
+                     len(ambiental_risk))
         response = update_risks(structural_risk, ambiental_risk)
         return response[0]
 
