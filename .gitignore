@@ -8,6 +8,8 @@ venv/
 .idea/
 node_modules/
 temp/
+test.*
+mapconverter/
 
 # local env files
 .env.local
