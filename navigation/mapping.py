@@ -40,7 +40,7 @@ class Mapping:
 
         self._plot_image()
         self.create_map()
-        self._plot_visited(visited)
+        # self._plot_visited(visited)
         self._plot_path(path)
 
         plt.show()
@@ -127,9 +127,3 @@ class Mapping:
             if count % length == 0:
                 plt.pause(0.001)
             plt.pause(self.pause)
-
-
-if __name__ == "__main__":
-    m = Mapping((20, 20), (99, 25))
-    m.create_map()
-    plt.show()

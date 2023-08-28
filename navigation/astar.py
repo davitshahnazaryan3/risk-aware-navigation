@@ -194,7 +194,6 @@ class Astar:
         path = [self.safe_cell]
         current = self.safe_cell
 
-        cnt = 0
         while True:
             current = self.PARENT[current]
 
@@ -202,10 +201,6 @@ class Astar:
 
             if current == self.start:
                 break
-
-            if cnt == 40:
-                break
-            cnt += 1
 
         return path
 
@@ -261,14 +256,14 @@ if __name__ == '__main__':
 
     import json
 
-    start = 92
+    start = 39612
 
-    map_image = "../maps/other-maps/fictitious_map_2000cm_tested.png"
+    # map_image = "../maps/other-maps/fictitious_map_2000cm_tested.png"
 
-    grid = json.load(open("../maps/other-maps/fictitious_map_2000cm.json"))
+    grid = json.load(open("../maps/2-NavigationFile.json"))
     astar = Astar(start, grid, "euclidean", account_risk=True)
 
-    np.random.seed(20)
+    # np.random.seed(20)
     risk = np.random.randint(0, 10, size=len(grid['cells']))
 
     astar.update_risk(risk)
