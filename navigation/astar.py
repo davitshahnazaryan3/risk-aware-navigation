@@ -13,7 +13,21 @@ class Astar:
     cost: dict = None
     best_route: List[int] = None
 
-    def __init__(self, start: int, grid: dict, heuristic: str = "diagonal"):
+    RISK_MAP = {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 1,
+        5: 1,
+        6: 2,
+        7: 2,
+        8: 3,
+        9: 3,
+    }
+
+    def __init__(self, start: int, grid: dict, heuristic: str = "euclidean",
+                 account_risk: bool = False):
         """Initialize A* algorithm
 
         The "best route" is selected based on
@@ -35,10 +49,14 @@ class Astar:
         grid : dict
             Map grid
         heuristic : str, Optional
-            Heuristic type, by default diagonal
+            Heuristic type, diagonal, euclidean, or manhattan,
+            by default euclidean
+        account_risk : bool, Optional
+            Perform risk-based search?, by default False
         """
         self.start = start
         self.grid = grid
+        self.account_risk = account_risk
         self.heuristic = heuristic.lower()
 
         self._validate_grid()
@@ -109,13 +127,19 @@ class Astar:
 
             # For each successor node (neighbors)
             for successor in self._get_successors(node):
-                current_cost = self.cost[node] \
+                movement_cost = self.cost[node]
+
+                current_cost = movement_cost \
                     + self._get_cost_of_movement(node, successor)
 
                 if successor not in self.cost:
                     self.cost[successor] = float("inf")
 
                 if current_cost < self.cost[successor]:
+                    # Check if the successor is already in the VISITED set
+                    if successor in self.VISITED:
+                        continue
+
                     self.cost[successor] = current_cost
                     self.PARENT[successor] = node
 
@@ -129,8 +153,13 @@ class Astar:
         return None
 
     def _compute_f_value(self, node):
-        return self.cost[node] \
-            + self._get_cost_of_movement(node, self.grid['safe_zones'])
+        if self.account_risk:
+            weight = self.risk[node]
+        else:
+            weight = 1
+
+        return self.cost[node] + weight \
+            * self._get_cost_of_movement(node, self.grid['safe_zones'])
 
     def _get_coordinates_cell(self, node):
         return np.unravel_index(
@@ -165,12 +194,18 @@ class Astar:
         path = [self.safe_cell]
         current = self.safe_cell
 
+        cnt = 0
         while True:
             current = self.PARENT[current]
+
             path.append(current)
 
             if current == self.start:
                 break
+
+            if cnt == 40:
+                break
+            cnt += 1
 
         return path
 
@@ -183,6 +218,10 @@ class Astar:
             New risk array
         """
         risk = np.asarray(risk)
+
+        if len(risk) != len(self.grid['cells']):
+            raise ValueError("Length of risk array must match the number of"
+                             " cells of the grid map")
 
         self.risk = np.maximum(risk, self.risk)
 
@@ -227,7 +266,14 @@ if __name__ == '__main__':
     map_image = "../maps/other-maps/fictitious_map_2000cm_tested.png"
 
     grid = json.load(open("../maps/other-maps/fictitious_map_2000cm.json"))
-    astar = Astar(start, grid, "euclidean")
+    astar = Astar(start, grid, "euclidean", account_risk=True)
+
+    np.random.seed(20)
+    risk = np.random.randint(0, 10, size=len(grid['cells']))
+
+    astar.update_risk(risk)
 
     best_route = astar.search()
+    print(best_route)
+
     astar.animate(pause=0.01, image=None)
