@@ -10,6 +10,7 @@ node_modules/
 temp/
 test.*
 mapconverter/
+other-maps/
 
 # local env files
 .env.local

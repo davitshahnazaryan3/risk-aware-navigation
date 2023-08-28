@@ -1,5 +1,5 @@
 [Unit]
-Description=rossini structural rie
+Description=structural rie
 After=network.target
 
 [Service]

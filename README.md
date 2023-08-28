@@ -8,11 +8,11 @@ Demo of Risk-aware navigation system tailored for industries with a focus on acc
 - [ ] In progress: map creator
 
 ### Apps
-- Component inventory
+- Component inventory creator module
     - /inventory
 - Risk calculation module
     - /src
-- Risk-based navigation module, modified A*
+- Risk-based navigation module, adapted A*
     - /navigation
 
 ### Environmental variables

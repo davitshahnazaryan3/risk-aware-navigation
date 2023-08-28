@@ -1,92 +1,104 @@
-"""
-A* Search algorithm is one of the best and popular technique used in path-finding and graph traversals.
-
-To approximate the shortest path in real-life situations, like- in maps, games where there can be many hindrances. We
-can consider a 2D Grid having several obstacles and we start from a source cell to reach towards a goal cell.
-
-Consider a square grid having many obstacles and we are given a starting cell and a target cell. We want to reach the
-target cell (if possible) from the starting cell as quickly as possible. Here A* Search Algorithm comes to the rescue.
-What A* Search Algorithm does is that at each step it picks the node according to a value-‘f’ which is a parameter equal
-to the sum of two other parameters – ‘g’ and ‘h’. At each step it picks the node/cell having the lowest ‘f’, and process
-that node/cell.
-
-We define ‘g’ and ‘h’ as simply as possible below
-
-g = the movement cost to move from the starting point to a given square on the grid, following the path generated to get
-there.
-
-h = the estimated movement cost to move from that given square on the grid to the final destination.
-This is often referred to as the heuristic, which is nothing but a kind of smart guess. We really don’t know the actual
-distance until we find the path, because all sorts of things can be in the way (walls, water, etc.). There can be many
-ways to calculate this ‘h’ which are discussed in the later sections.
-
-Algorithm
-
-    1. Initialize the open list
-    2. Initialize the closed list
-        put starting node to the open list (can leave its f at zero)
-    3. While the open list is not empty
-        a) find the node with the least f on the open list, call it q
-        b) pop q off the open list
-        c) generate q's 8 successors and set their parents to q
-        d) for each successor
-            i) if successor is the goal, stop search.
-            successor.g = q.g + distance between successor and q
-            successor.h = distance from goal to successor (e.g., heuristics may be used - Manhattan, Diagonal and
-            Euclidean Heuristics)
-            successor.f = successor.g + successor.h
-
-            ii) if a node with the same position as successor is in the OPEN list,
-            which has a lower f than successor, skip this successor
-
-            iii) if a node with the same position as successor is in the CLOSED list,
-            which has a lower f than successor, skip this successor otherwise, add the node to the OPEN list
-        end for loop (d)
-
-        e) push q to the CLOSED list
-        end while loop (3)
-
-"""
-
-from MapGenerator.env import Env
-from MapGenerator.mapping import Mapping
-from utils.graph_utils import *
-from utils.utils import error_msg, success_msg
-from navigation.priorityQueue import PriorityQueue
+from pathlib import Path
+from typing import Union, List
+import numpy as np
+from priorityQueue import PriorityQueue
+from mapping import Mapping
+from graph_utils import safe_zone_reached, calculate_heuristic
+from utils import success_msg, error_msg
 
 
 class Astar:
-    def __init__(self, start, goal, heuristic="euclidean"):
+    risk: np.ndarray = None
+    safe_cell: int = None
+    cost: dict = None
+    best_route: List[int] = None
+
+    def __init__(self, start: int, grid: dict, heuristic: str = "diagonal"):
+        """Initialize A* algorithm
+
+        The "best route" is selected based on
+        minimum cost (risk) encountered on the entire path,
+        which is different to the typical implementation of A*, where the aim
+        is to minimise the sum of the risk along the route
+
+        'g' = distance from start node
+        'h' = distance from end node
+            Minimum of distances to safe zones
+        'f' = the sum of the two
+
+        For this work, largest RISK value along the path is the deciding factor
+
+        Parameters
+        ----------
+        start : int
+            Starting cell ID, location of a worker in an industrial cell
+        grid : dict
+            Map grid
+        heuristic : str, Optional
+            Heuristic type, by default diagonal
+        """
         self.start = start
-        self.goal = goal
+        self.grid = grid
         self.heuristic = heuristic.lower()
 
-        if self.heuristic != "euclidean":
-            error_msg("Heuristic other than euclidean is not recommended!")
+        self._validate_grid()
+        self._initialize_risk()
 
-        # Set up the traversable terrain and obstacles
-        self.env = Env()
-
-        # Priority queue
+        # Priority queue, Open list
+        # Risk - Cell IDs, lower the risk, better
         self.FRONTIER = PriorityQueue()
 
-        # Add start to the Frontier with 0 priority (highest priority)
+        # Add start to the Frontier with 0 risk
         self.FRONTIER.add(self.start)
 
-        # Visited nodes
+        # Visited nodes, Closed list
         self.VISITED = set()
 
         # Parent (came from)
         self.PARENT = {self.start: self.start}
 
-        # Movement costs, g cost
-        self.distance = {self.start: 0, self.goal: float("inf")}
+        # Movement costs, g costs, distance from start node
+        self._initialize_movement_costs()
 
-    def search(self, goal_function):
+    def _validate_grid(self):
+        n_cells = self.grid['rows'] * self.grid['columns']
+
+        if 'safe_zones' not in self.grid or len(self.grid['safe_zones']) == 0:
+            raise ValueError("Safe zones not provided!")
+
+        for cell in self.grid['safe_zones']:
+            if cell > n_cells:
+                raise ValueError("Safe zone ID not matching any ID of cell in "
+                                 "the provided grid")
+
+        if n_cells != len(self.grid['cells']):
+            raise ValueError(
+                "Provided grid number of cells not matching rows x columns!")
+
+        if len(self.grid['cells'][self.start]['connections']) == 0:
+            raise ValueError(f"Start cell {self.start} is not a valid"
+                             " traversable cell")
+
+    def _initialize_movement_costs(self):
+        # typically 'g' costs
+        self.cost = {self.start: 0}
+        for cell in self.grid['safe_zones']:
+            self.cost[cell] = float("inf")
+
+    def search(self):
+        goal = safe_zone_reached(self.grid['safe_zones'])
 
         while self.FRONTIER:
-            # the node with the lowest f-value (priority)
+            # The node with the lowest risk
             node = self.FRONTIER.pop()
+
+            # Goal reached?
+            if goal(node):
+                success_msg("Path found!")
+                self.safe_cell = node
+                self.best_route = self._extract_best_route()
+
+                return self.best_route
 
             # Node already visited?
             if node in self.VISITED:
@@ -95,24 +107,19 @@ class Astar:
             # Visiting the current node
             self.VISITED.add(node)
 
-            # Goal reached?
-            if goal_function(node):
-                success_msg("Path found!")
-                return self.extract_path()
-
             # For each successor node (neighbors)
-            for successor in self._successor_function(node):
-                current_cost = self.distance[node] + self._get_cost_of_movement(node, successor)
+            for successor in self._get_successors(node):
+                current_cost = self.cost[node] \
+                    + self._get_cost_of_movement(node, successor)
 
-                if successor not in self.distance:
-                    self.distance[successor] = float("inf")
+                if successor not in self.cost:
+                    self.cost[successor] = float("inf")
 
-                if current_cost < self.distance[successor]:
-
-                    self.distance[successor] = current_cost
+                if current_cost < self.cost[successor]:
+                    self.cost[successor] = current_cost
                     self.PARENT[successor] = node
 
-                    # Add successor into the queue with its f-score
+                    # Add successor to the queue with its f-score
                     self.FRONTIER.add(
                         successor,
                         priority=self._compute_f_value(successor)
@@ -121,13 +128,42 @@ class Astar:
         error_msg("No path found!")
         return None
 
-    def extract_path(self):
+    def _compute_f_value(self, node):
+        return self.cost[node] \
+            + self._get_cost_of_movement(node, self.grid['safe_zones'])
+
+    def _get_coordinates_cell(self, node):
+        return np.unravel_index(
+            node, (self.grid['rows'], self.grid['columns']))
+
+    def _get_cost_of_movement(self, current: int, end: Union[List[int], int]):
+
+        current_coord = self._get_coordinates_cell(current)
+
+        if isinstance(end, int):
+            end_coord = self._get_coordinates_cell(end)
+            return calculate_heuristic(self.heuristic, current_coord,
+                                       end_coord)
+
+        min_g = float("inf")
+        for zone in end:
+            zone_coord = self._get_coordinates_cell(zone)
+            current_g = calculate_heuristic(self.heuristic, current_coord,
+                                            zone_coord)
+            if current_g < min_g:
+                min_g = current_g
+        return min_g
+
+    def _extract_best_route(self) -> List[int]:
+        """Extract the best route
+
+        Returns
+        -------
+        List[int]
+            List containing IDs of cells on the best route
         """
-        Extract the path based on the PARENT set.
-        :return: The planning path
-        """
-        path = [self.goal]
-        current = self.goal
+        path = [self.safe_cell]
+        current = self.safe_cell
 
         while True:
             current = self.PARENT[current]
@@ -136,62 +172,62 @@ class Astar:
             if current == self.start:
                 break
 
-        return list(path)
+        return path
 
-    def _get_cost_of_movement(self, current, end):
-        if self._is_collision(current, end):
-            return float("inf")
-        return calculate_heuristic(self.heuristic, current, end)
+    def update_risk(self, risk: Union[np.ndarray, List[int]]) -> None:
+        """Updates risk
 
-    def _is_collision(self, current, end):
+        Parameters
+        ----------
+        risk : Union[np.ndarray, List[int]]
+            New risk array
         """
-        Check if the line segment (current, end) is collision.
-        :param current: tuple           Current node
-        :param end: tuple               End node
-        :return:    True: is collision
-                    False: not collision
+        risk = np.asarray(risk)
+
+        self.risk = np.maximum(risk, self.risk)
+
+    def _initialize_risk(self):
+        self.risk = np.zeros(self.grid['rows'] * self.grid['columns'])
+
+    def _retrieve_risk(self, node: int):
+        """Gets risk of cell
+        Parameters
+        ----------
+        id : int
+            ID of current cell
         """
+        return self.risk[node]
 
-        if current in self.env.obs or end in self.env.obs:
-            return True
+    def _get_successors(self, node: int) -> List[int]:
+        """Get successor ids
 
-        if current[0] != end[0] and current[1] != end[1]:
-            if end[0] - current[0] == current[1] - end[1]:
-                s1 = (min(current[0], end[0]), min(current[1], end[1]))
-                s2 = (max(current[0], end[0]), max(current[1], end[1]))
-            else:
-                s1 = (min(current[0], end[0]), max(current[1], end[1]))
-                s2 = (max(current[0], end[0]), min(current[1], end[1]))
+        Parameters
+        ----------
+        id : int
+            ID of current cell
 
-            if s1 in self.env.obs or s2 in self.env.obs:
-                return True
-
-        return False
-
-    def _successor_function(self, current):
+        Returns
+        ----------
+        id : List[int]
+            IDs of available successor (connection) nodes
         """
-        Find successor nodes of current node that does not collide with an obstacle
-        :param current: tuple
-        :return: list(tuple)
-        """
-        return [(current[0] + v[0], current[1] + v[1]) for v in self.env.movements]
+        return self.grid['cells'][node]['connections']
 
-    def _compute_f_value(self, current):
-        """
-        f = g + h, computes priority value
-        :param current: tuple   Current state
-        :return: float          Priority value
-        """
-        return self.distance[current] + calculate_heuristic(self.heuristic, current, self.goal)
+    def animate(self, pause: float = 0.01, image: Union[str, Path] = None):
+        Mapping(self.start, self.grid, pause, image).animate(
+            self.best_route, self.VISITED)
 
 
 if __name__ == '__main__':
-    start = (20, 20)
-    goal = (99, 25)
 
-    astar = Astar(start, goal)
-    mapping = Mapping(start, goal)
+    import json
 
-    # Start the search
-    path = astar.search(goal_function=get_goal_function(goal))
-    mapping.animate(path, astar.VISITED)
+    start = 92
+
+    map_image = "../maps/other-maps/fictitious_map_2000cm_tested.png"
+
+    grid = json.load(open("../maps/other-maps/fictitious_map_2000cm.json"))
+    astar = Astar(start, grid, "euclidean")
+
+    best_route = astar.search()
+    astar.animate(pause=0.01, image=None)

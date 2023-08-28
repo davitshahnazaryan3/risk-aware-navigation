@@ -9,15 +9,19 @@ class PriorityQueue:
             for value in iterable:
                 heappush(self.heap, (0, value))
 
-    def add(self, value, priority=0):
-        """
-        value: tuple
-        priority: int
+    def add(self, value: tuple, priority: int = 0):
+        """Add
+
+        Parameters
+        ----------
+        value : tuple
+        priority : int, optional
+            by default 0
         """
         heappush(self.heap, (priority, value))
 
     def pop(self):
-        priority, value = heappop(self.heap)
+        _, value = heappop(self.heap)
         return value
 
     def __len__(self):
