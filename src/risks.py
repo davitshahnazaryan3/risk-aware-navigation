@@ -76,8 +76,8 @@ class Risk:
     }
 
     STRUCTURE_IDS = {
-        "622204f35ed4ed1b0bb72c18", 
-        "622204ff5ed4ed1b0bb72c1a", 
+        "622204f35ed4ed1b0bb72c18",
+        "622204ff5ed4ed1b0bb72c1a",
         "6222051d5ed4ed1b0bb72c1c",
         "622205335ed4ed1b0bb72c1e",
     }
@@ -116,9 +116,9 @@ class Risk:
         client : redis.Redis, optional
                 Redis Client, by default None
         """
-        
+
         self._get_constants()
-        
+
         self.client = client
         self.db, self.inventory_cache_exists = connect_to_dabase(
             settings.database_name, redis_inventory_key, client=client)
@@ -145,10 +145,10 @@ class Risk:
             self.sensors = None
 
     def _get_constants(self):
-        
+
         with open(PATH / "constants.yaml", "r") as f:
             constants = yaml.safe_load(f)
-        
+
         self.STRUCTURE_IDS = constants.get('STRUCTURE_IDS', self.STRUCTURE_IDS)
         if self.STRUCTURE_IDS is not None:
             self.STRUCTURE_IDS = set(self.STRUCTURE_IDS)
